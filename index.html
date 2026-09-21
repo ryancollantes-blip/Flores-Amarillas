@@ -437,7 +437,6 @@
 
   .acceso-caja button { width: 100%; }
 
-  /* Sacudida cuando la clave está mal */
   .sacudir { animation: sacudir 0.45s ease; }
 
   @keyframes sacudir {
@@ -448,7 +447,6 @@
     80% { transform: translateX(6px); }
   }
 
-  /* ---------- Botón de música flotante ---------- */
   .btn-musica {
     position: fixed;
     right: 1rem;
@@ -477,7 +475,6 @@
 
 <div id="petalos" aria-hidden="true"></div>
 
-<!-- ---------- Pantalla de acceso ---------- -->
 <div class="acceso" id="acceso">
  <div class="acceso-caja" id="accesoCaja">
     <span class="icono">🌼</span>
@@ -495,8 +492,6 @@
 <button class="btn-musica" id="btnMusica" type="button" aria-label="Activar o silenciar la música" title="Música">🔊</button>
 
 <audio id="musica" loop preload="auto">
-  <!-- 🎵 Tu canción: coloca canciones.mp3 en la misma carpeta que esta página.
-       Si no está, suena la melodía propia de la página. -->
  <source src="canciones.mp3" type="audio/mpeg" />
 </audio>
 
@@ -511,7 +506,6 @@
  </p>
 
  <div class="ramo" role="img" aria-label="Ramo de flores amarillas">
-    <!-- Las 6 flores SVG se insertan desde JavaScript -->
     <div class="flor f1"></div>
     <div class="flor f2"></div>
     <div class="flor f3"></div>
@@ -527,7 +521,6 @@
     </p>
     <p id="mensaje-personal" contenteditable="true" spellcheck="false"
        aria-label="Escribe aquí tu mensaje personal">
-      <!-- ✏️ Escribe aquí tu mensaje personal: haz clic en este texto y cámbialo por el tuyo -->
       Gracias por las risas, por escucharme y por quedarte incluso en los días grises.
       Ojalá estas flores amarillas te recuerden lo mucho que te quiero.
     </p>
@@ -541,9 +534,6 @@
  </div>
 
  <p class="sorpresa" id="sorpresa" aria-live="polite"></p>
-
- <!-- 🎵 La página trae su propia melodía. Si quieres tu canción real,
-      coloca un archivo llamado canciones.mp3 junto a esta página. -->
 
  <footer>Hecho con cariño, solo para ti · <span id="anio"></span></footer>
 </main>
@@ -564,7 +554,6 @@
 (function () {
   "use strict";
 
-  // ---------- Datos ----------
   var FRASES = [
     "Eres de esas personas que hacen todo más fácil. 💛",
     "Gracias por estar incluso cuando no lo pedí. 🌼",
@@ -607,12 +596,10 @@
 
   function $(id) { return document.getElementById(id); }
 
-  /** Devuelve un elemento al azar de un arreglo. */
   function alAzar(lista) {
     return lista[Math.floor(Math.random() * lista.length)];
   }
 
-  // ---------- Render ----------
   function montarFlores() {
     var nodos = document.querySelectorAll(".flor");
     for (var i = 0; i < nodos.length; i++) {
@@ -642,7 +629,6 @@
     for (var i = 0; i < cantidad; i++) crearPetalo();
   }
 
-  // ---------- Interacciones ----------
   var indiceFrase = -1;
 
   function mostrarFrase() {
@@ -654,7 +640,7 @@
     indiceFrase = i;
 
     caja.classList.remove("visible");
-    void caja.offsetWidth; // reinicia la transición
+    void caja.offsetWidth;
     caja.textContent = FRASES[i];
     caja.classList.add("visible");
   }
@@ -701,37 +687,28 @@
       }
     });
 
-    // Guarda el mensaje personalizado para no perderlo al recargar.
     var msg = $("mensaje-personal");
     if (msg) {
       try {
         var guardado = localStorage.getItem("mensajeFlores");
         if (guardado) msg.textContent = guardado;
-      } catch (err) { /* localStorage puede estar bloqueado */ }
+      } catch (err) {}
 
       msg.addEventListener("input", function () {
         try { localStorage.setItem("mensajeFlores", msg.textContent); }
-        catch (err) { /* ignorar */ }
+        catch (err) {}
       });
     }
   }
 
-  // ---------- Acceso ----------
   var NOMBRE = "valeska";
   var CLAVE = "sexseven";
 
-  /**
-   * Normaliza lo escrito para compararlo sin sorpresas:
-   * - quita espacios (incluidos los que mete el teclado del movil:
-   *   espacios duros U+00A0, NBSP, saltos de linea y anchos cero)
-   * - pasa todo a minusculas
-   * - quita acentos/diacriticos (Valeska, Valéska, VALESKA -> valeska)
-   */
   function normalizar(texto) {
     var s = String(texto || "");
     try {
       if (s.normalize) s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    } catch (err) { /* navegador sin normalize: continuar */ }
+    } catch (err) {}
     return s
       .replace(/[\u00A0\u2000-\u200B\u202F\u205F\u3000\uFEFF]/g, "")
       .replace(/\s+/g, "")
@@ -741,11 +718,7 @@
   function abrirPagina() {
     var acceso = $("acceso");
     if (acceso) acceso.classList.add("oculto");
-
-    // Crea el reproductor y arranca la musica con el gesto del usuario.
     arrancarMusica();
-
-    // Si el navegador guardo la musica activa, deja el boton visible.
     var boton = $("btnMusica");
     if (boton) boton.classList.add("visible");
   }
@@ -757,10 +730,8 @@
     var error = $("errorAcceso");
     var caja = $("accesoCaja");
 
-    // Se normaliza tambien lo esperado, por si cambias NOMBRE/CLAVE
-    // y les pones mayusculas, tildes o espacios sin querer.
     if (nombre === normalizar(NOMBRE) && clave === normalizar(CLAVE)) {
-      try { sessionStorage.setItem("floresAbierto", "1"); } catch (err) { /* ignorar */ }
+      try { sessionStorage.setItem("floresAbierto", "1"); } catch (err) {}
       abrirPagina();
       return;
     }
@@ -777,30 +748,24 @@
     var form = $("formAcceso");
     if (form) form.addEventListener("submit", intentarAcceso);
 
-    // Si ya se abrio en esta sesion, no vuelve a pedir la clave.
     try {
       if (sessionStorage.getItem("floresAbierto") === "1") abrirPagina();
-    } catch (err) { /* ignorar */ }
+    } catch (err) {}
   }
 
-  // ---------- Musica ----------
-  // Dos fuentes: (1) el archivo canciones.mp3 si esta junto a la pagina,
-  // (2) una melodia suave generada con Web Audio si no existe el archivo
-  // (asi funciona igual al abrirla suelta desde WhatsApp).
   var audio = null;
   var musicaIniciada = false;
   var audioCtx = null;
   var melodiaTimer = null;
   var melodiaGanancia = null;
 
-  // Notas de una melodia dulce (frecuencias en Hz).
   var MELODIA = [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 587.33,
                  659.25, 523.25, 587.33, 493.88, 523.25, 440.00, 523.25, 493.88];
   var posNota = 0;
 
   function iniciarMelodia() {
     if (melodiaTimer || !audioCtx) return;
-    var paso = 0.42; // segundos por nota
+    var paso = 0.42;
     var tocarNota = function () {
       if (!audioCtx) return;
       var osc = audioCtx.createOscillator();
@@ -845,10 +810,9 @@
     }
     var b = $("btnMusica");
     if (b) b.classList.toggle("silenciado", on);
-    try { localStorage.setItem("musicaSilenciada", on ? "1" : "0"); } catch (err) { /* ignorar */ }
+    try { localStorage.setItem("musicaSilenciada", on ? "1" : "0"); } catch (err) {}
   }
 
-  /** Si el audio no suena, activa la melodia generada como respaldo. */
   function usarRespaldo() {
     if (crearContextoAudio()) {
       if (audioCtx.state === "suspended" && audioCtx.resume) audioCtx.resume();
@@ -861,7 +825,7 @@
     musicaIniciada = true;
 
     var silenciada = false;
-    try { silenciada = localStorage.getItem("musicaSilenciada") === "1"; } catch (err) { /* ignorar */ }
+    try { silenciada = localStorage.getItem("musicaSilenciada") === "1"; } catch (err) {}
 
     audio = $("musica");
 
@@ -871,11 +835,7 @@
       audio.volume = 0.55;
       var p = audio.play();
       if (p && typeof p.catch === "function") {
-        p.catch(function () {
-          // No hay archivo o el navegador bloqueo el autoplay:
-          // usa la melodia generada y reintenta el archivo al primer toque.
-          usarRespaldo();
-        });
+        p.catch(function () { usarRespaldo(); });
       }
     } else {
       usarRespaldo();
@@ -905,7 +865,6 @@
     if (b) b.addEventListener("click", alternarMusica);
   }
 
-  // ---------- Inicio ----------
   function iniciar() {
     var anio = $("anio");
     if (anio) anio.textContent = new Date().getFullYear();
